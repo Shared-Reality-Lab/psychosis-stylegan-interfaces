@@ -1,7 +1,7 @@
 # specific to apps
-results/
-originals/
-experiment_1/
+*/results/
+*/originals/
+*/experiment_1/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

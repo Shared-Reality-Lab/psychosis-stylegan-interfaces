@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600' rel='stylesheet'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel='stylesheet' type='text/css' href='/static/style.css'> 
+    <link rel="stylesheet" type="text/css" href="/static/fontawesome.css"> 
+    <title>Avatar Synthesis</title>
+    <meta charset='utf-8'/>
+</head>
+
+<body>
+
+<!-- Header -->
+<header id='header' class='no-highlight'>
+    <a href='#' target='_blank'>
+        <img id='logo' src='/static/srl_logo.png' alt='SRL logo'/>
+    </a>
+    <div class='tagline'>Avatar Synthesis</div>
+    <div class='tagline' id="status" style="color : #de684f;">Status: READY</div>
+    <div class="tagline spinner-border text-danger" role="status" style="display: none;">
+	<span class="sr-only"></span>
+    </div>
+    <div id='header-controls'>
+        <div id="chrono">
+            <span id="chrono-time">0:00:00</span>
+            <span id="chrono-controls">
+            <a id="chrono-start-stop" href="#" onclick="chrono.start()"><i class="fas fa-play-circle"></i></a>
+            <a id="chrono-reset" href="#" onclick="chrono.reset()"><i class="fas fa-undo-alt"></i></a>
+            <a id="chrono-done" href="#" onclick="chrono.done()"><i class="fas fa-check-circle"></i></a>
+          </span>
+        </div>
+    </div>
+</header>
+<div id='tooltip'></div>
+
+<!-- User ID modals -->
+<div class="container">
+	<div id="user-id-modal" style="display: none;">
+		<div class="input-group input-group-lg">
+  			<div class="input-group-prepend">
+    				<span class="input-group-text" id="inputGroup-sizing-lg">ID</span>
+  			</div>
+  		<input id="user-id-input" type="number" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+		<button type="button" id="user-id-form" class="btn btn-secondary">Submit</button>
+		</div>
+	</div>
+	<div id="error-id-modal" style="display:none;" class="alert alert-danger" role="alert">
+		<span id="error-id-log"></span>
+	</div>
+	<div id="success-modal" style="display:none;" class="alert alert-success" role="alert">
+                <span id="success-log"></span>
+        </div>
+</div>
+
+<!-- Warm starting modal -->
+<div id="warm-starting-modal">
+    <div class="modal-content">
+        <div class="modal-top">
+            <script type='text/html' id='warm-starting-template'>
+                <div class='modal-top-content'>
+                    <h2>Hotspots</h2>
+                    <p>Select the image in this pre-selection that is the closest to your target</p>
+                    <div id='warm-starting-grid'>
+                        <% _.forEach(images, function(image, idx) { %>
+                        <div class='selected-image'>
+                            <div data-index='<%- idx %>' data-image='<%- image.name %>' class='background-image'
+                                    style='background-image: url("/static/originals/<%- image.name %>");'></div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </script>
+            <div id="warm-starting-target"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="container h-100">
+    <div id="question-container" class="row align-items-end h-25" style="display: none;">
+	<div class="col">
+		<p class="lead">Click on the face that looks more similar to your target each time a new image is proposed to you.</p>
+	</div>
+    </div>
+    <div id="image-container" class="row align-items-center h-100">
+        <div class="col">
+            <div id="target-container" class="avatar-container">
+                <img id="target-image" src='/static/empty.png' width="100%" class="rounded mx-auto d-block img-thumbnail"/>	 
+                <p class="text-center">Upload your target image<label for="file" style="cursor: pointer; margin-left: 5px;"><img src="/static/upload-icon.png" width="10"/></label></p> 
+                <input type="file"  accept="image/jpeg, image/png" name="image" id="file" onchange="loadImage(event)" style="display: none;">
+            </div>
+        </div>
+        <div class="col">
+            <div id="current-avatar" class="avatar-container text-center">                    
+                <input class="invisible choice" type="radio" name="user-preference" id="current-solution" value="0" />
+                <label for="current-solution">
+                    <img id="current-image" src='/static/empty.png' width="100%" class="rounded mx-auto d-block img-thumbnail"/> 
+                </label>    
+                <p class="text-center">Current avatar
+                <a href='/static/empty.png' onclick="this.href = $('#current-image').attr('src');" download><img src="/static/download-icon.png" width="10"/></a> 
+                </p>
+            </div>
+        </div>
+        <div class="col">
+            <div id="current-avatar" class="avatar-container text-center">
+                <input class="invisible choice" type="radio" name="user-preference" id="proposed-solution" value="1" />
+                <label for="proposed-solution">
+                    <img id="proposed-image" src="/static/empty.png" width="100%" class="rounded mx-auto d-block img-thumbnail"/> 
+                </label>
+                <p class="text-center">Proposed avatar</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+-->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js" integrity="sha256-ur/YlHMU96MxHEsy3fHGszZHas7NzH4RQlD4tDVvFhw=" crossorigin="anonymous"></script>
+<script type='text/javascript' src='./static/opt_app.js'></script>
+
+</body>

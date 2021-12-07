@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600' rel='stylesheet'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel='stylesheet' type='text/css' href='/static/style.css'>
+    <link rel="stylesheet" type="text/css" href="/static/fontawesome.css">
+    <title>Avatar Synthesis</title>
+    <meta charset='utf-8'/>
+</head>
+<body>
+
+<!-- Header -->
+<header id='header' class='no-highlight'>
+    <a href='#' target='_blank'>
+        <img id='logo' src='/static/srl_logo.png' alt='SRL logo'/>
+    </a>
+    <div class='tagline'>Avatar Synthesis</div>
+    <div id='header-controls'>
+        <div id="chrono">
+            <span id="chrono-time">0:00:00</span>
+            <span id="chrono-controls">
+            <a id="chrono-start-stop" href="#" onclick="chrono.start()"><i class="fas fa-play-circle"></i></a>
+            <a id="chrono-reset" href="#" onclick="chrono.reset()"><i class="fas fa-undo-alt"></i></a>
+            <a id="chrono-done" href="#" onclick="chrono.done()"><i class="fas fa-check-circle"></i></a>
+          </span>
+        </div>
+    </div>
+</header>
+<div id='tooltip'></div>
+
+<div class="container">
+	<div id="user-id-modal" style="display: none;">
+		<div class="input-group input-group-lg">
+  			<div class="input-group-prepend">
+    				<span class="input-group-text" id="inputGroup-sizing-lg">ID</span>
+  			</div>
+  		<input id="user-id-input" type="number" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+		<button type="button" id="user-id-form" class="btn btn-secondary">Submit</button>
+		</div>
+	</div>
+	<div id="error-id-modal" style="display:none;" class="alert alert-danger" role="alert">
+		<span id="error-id-log"></span>
+	</div>
+	<div id="success-modal" style="display:none;" class="alert alert-success" role="alert">
+                <span id="success-log"></span>
+        </div>
+</div>
+
+<!-- Content -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="target-container" class="avatar-container">
+                <img id="target-image" src='/static/empty.png' width="60%" class="rounded mx-auto d-block img-thumbnail"/>	
+                <p class="text-center">Upload your target image<label for="file" style="cursor: pointer; margin-left: 5px;"><img src="/static/upload-icon.png" width="10"/></label></p>
+                <input type="file"  accept="image/jpeg, image/png" name="image" id="file" onchange="loadImage(event)" style="display: none;">
+            </div>
+        </div>
+        <div class="col">
+            <div id="current-avatar" class="avatar-container">
+                <img id="avatar-image" src='/static/empty.png' width="60%" class="rounded mx-auto d-block img-thumbnail"/>
+                <p class="text-center">Current avatar
+                <a href='/static/empty.png' onclick="this.href = $('#avatar-image').attr('src');" download><img src="/static/download-icon.png" width="10"/></a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="display: none;">
+	<div class="col" style="margin-bottom: 10px;">
+		<button type="button" id="warmStarting" class="btn btn-warning">Start from image</button>
+		<div id="warm-starting-modal" style="display: none; width: 50%;">
+                	<div class="input-group input-group-lg">
+                        	<div class="input-group-prepend">
+                                	<span class="input-group-text" id="inputGroup-sizing-lg">Seed number</span>
+                        	</div>
+                		<input id="warm-starting-input" type="number" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+                	<button type="button" id="warm-starting-form" class="btn btn-warning">Submit</button>
+                	</div>
+        	</div>
+	</div>
+    </div>  
+    <div class="row">
+	<!-- generate random image not displayed -->
+        <div class="col-2" style="display: none;">
+            <button type="button" id="rndImage" class="btn btn-warning">Random Image</button>
+        </div>
+        <div class="col-3">
+            <h6>Intensity of modification</h6>
+            <form class="range-field w-75">
+                <!-- <label for="range-grain">Detail level</label> -->
+                <input type="range"  min="0" max="1" step="0.1" id="range-grain"/>
+                <span class="font-weight-bold ml-2 mt-1" id="grain-level"></span>
+            </form>    
+        </div>
+        <div class="col-3">
+            <!-- Status can be ready, uploading or success-->
+            <span class="font-weight-bold ml-2 mt-1" id="system-status">STATUS: READY</span>
+        	<div class="spinner-border text-warning" role="status" style="display: none;">
+  			<span class="sr-only"></span>
+		</div>
+	</div>
+	<div class="col-4">
+		<button type="button" id="prev-btn" class="btn btn-light">Previous</button>
+		<button type="button" id="next-btn" class="btn btn-light">Next</button>
+	</div>
+    </div> 
+    <!-- Controls -->
+    <div class="row">
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Gender</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="female_-" autocomplete="off">  M
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="female_+" autocomplete="off"> F
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Age</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="age_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="age_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Smile</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="smile_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="smile_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Eyeglasses</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="eyeglasses_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="eyeglasses_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Beard</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="beard_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="beard_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Long hair</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="shorthair_+" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="shorthair_-" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Blond hair</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="blondhair_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="blondhair_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Black hair</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="blackhair_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="blackhair_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Brown hair</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="brownhair_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="brownhair_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row">  
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Heart face</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="heartface_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="heartface_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Chubby face</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="chubby_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="chubby_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>    
+    </div>
+    <div class="row">
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>White</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racewhite_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racewhite_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Black</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="raceblack_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="raceblack_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>East Asian</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="raceeastasian_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="raceeastasian_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>South Asian</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racesouthasian_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racesouthasian_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>African</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racesouthafrican_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="racesouthafrican_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col" style="color: brown;"><p style="margin-top: 10px; margin-bottom: 0;">Experimental attributes</p></div>
+    </div>
+    <div class="row">
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Big nose</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="bignose_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="bignose_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Pointy nose</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="pointynose_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="pointynose_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Wavy hair</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="wavyhair_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="wavyhair_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div> 
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Oval face</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="ovalface_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="ovalface_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+        <div class="col-2">
+            <button type="button" class="btn btn-secondary btn-lg btn-block" disabled>Square face</button>
+            <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="squareface_-" autocomplete="off">  -
+                </label>
+                <label class="btn btn-light">
+                    <input type="radio" class="attrControl" name="options" id="squareface_+" autocomplete="off"> +
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+-->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script type='text/javascript' src='/static/umap.js'></script>
+</body>

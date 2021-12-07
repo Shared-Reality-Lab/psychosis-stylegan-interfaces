@@ -1,0 +1,317 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans';
+}
+
+body,
+html,
+canvas {
+    overflow: scroll;
+    height: 100%;
+}
+
+body,
+html {
+    background: #666666;
+    touch-action: none;
+}
+
+a {
+    text-decoration: none;
+    color: #eab755;
+    display: inline-block;
+}
+
+.btn-block+.btn-block {
+	margin-top: 0;
+}
+
+.btn-group-lg>.btn, .btn-lg {
+	font-size: 1rem;
+}
+
+.img-thumbnail {
+	max-width: 50%;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    border: none;
+    color: #333131;
+    font-size: 13px;
+    padding: 3px 6px;
+    border-radius: 5px;
+    background-color: #c3c3c3;
+    background-image: url(./icons/caret-icon.png);
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 95%;
+    min-width: 120px;
+    max-width: 200px;
+    transition: opacity 0.3s;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+select:disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+.no-highlight {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/**
+* Header
+**/
+
+#header {
+    height: 60px;
+    width: 100%;
+    position: fixed;
+    top: 0px;
+    overflow: hidden;
+    box-shadow: 2px 1px 2px rgba(39, 39, 39, 0.2);
+    font-size: 0;
+}
+
+#header,
+#logo {
+    background: #333;
+    position: relative;
+    z-index: 4;
+}
+
+#logo {
+    width: 80px;
+    padding: 10px;
+    height: 60px;
+}
+
+#app-name {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    padding: 18px 34px;
+    box-sizing: border-box;
+    font-weight: 300;
+    background: #444;
+    color: #fff;
+    font-size: 21px;
+    letter-spacing: 0.1em;
+    position: relative;
+    z-index: 1;
+}
+
+.tagline {
+    color: #999;
+    font-size: 16px;
+    padding: 20px 25px;
+    font-weight: 400;
+    letter-spacing: .025em;
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    box-sizing: border-box;
+    background: inherit;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 335px) {
+    #header #logo {
+        display: none;
+    }
+
+    #header .app-name {
+        width: 100%;
+        text-align: center;
+        padding: 18px 0;
+    }
+}
+
+/**
+* Header Controls
+**/
+
+#header-controls {
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    min-width: 280px;
+    opacity: 1;
+    transition: opacity 0.5s;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/**
+* Body
+**/
+#canvas{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+/**
+* Chrono
+**/
+
+#chrono {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 3px;
+}
+
+#chrono-time {
+    margin: 0 8px;
+    font-size: 16px;
+    letter-spacing: .025em;
+    color: #999;
+}
+
+#chrono-controls {
+    display: inline-block;
+    font-size: 18px;
+    color: #999;
+    letter-spacing: 0.05em;
+}
+
+/**
+* Target image
+**/
+/**#target-container{
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#target-image{
+    border: 2px black;
+} */
+
+/**
+* Browser messages
+**/
+
+#webgl-not-available {
+    text-align: center;
+    display: none;
+}
+
+noscript {
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+
+.browser-message {
+    position: relative;
+    top: 90px;
+    z-index: 2;
+    background: #c62d1e;
+    color: #fff;
+    padding: 12px 17px;
+    font-size: 17px;
+}
+
+/**
+* Shared modal styles
+**/
+
+.modal-content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.modal-x {
+    color: #ccc;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.modal-top {
+    padding: 60px 10%;
+    flex: 1;
+    box-sizing: border-box;
+    flex-direction: column;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    height: calc(100vh - 175px);
+}
+
+.modal-top h2 {
+    font-weight: 100;
+    color: #666;
+    text-align: center;
+    font-size: 25px;
+}
+
+.modal-top p {
+    font-size: 14px;
+    margin: 10px 0 20px;
+    text-align: center;
+}
+
+.modal-top-content {
+    padding: 40px;
+    background: #eee;
+    box-sizing: border-box;
+}
+
+
+/**
+* Tooltip
+**/
+
+#tooltip {
+    background: lightgray;
+    z-index: 100;
+    padding: 3px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 3px;
+    color: #333;
+    opacity: 0.9;
+}
+
+#tooltip::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    background: inherit;
+    right: 15px;
+    transform: rotate(45deg);
+    z-index: -1;
+}

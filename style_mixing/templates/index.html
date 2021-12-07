@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,600' rel='stylesheet'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel='stylesheet' type='text/css' href='/static/style.css'> 
+    <link rel="stylesheet" type="text/css" href="/static/fontawesome.css"> 
+    <title>Style mixing</title>
+    <meta charset='utf-8'/>
+</head>
+
+<body>
+
+<!-- Header -->
+<header id='header' class='no-highlight'>
+    <a href='#' target='_blank'>
+        <img id='logo' src='/static/srl_logo.png' alt='SRL logo'/>
+    </a>
+    <div class='tagline'>Style mixing</div>
+    <div class='tagline' id="status" style="color : #de684f;">Status: READY</div>
+    <div class="tagline spinner-border text-danger" role="status" style="display: none;">
+        <span class="sr-only"></span>
+    </div>
+    <div id='header-controls'>
+        <div id="chrono">
+            <span id="chrono-time">0:00:00</span>
+            <span id="chrono-controls">
+            <a id="chrono-start-stop" href="#" onclick="chrono.start()"><i class="fas fa-play-circle"></i></a>
+            <a id="chrono-reset" href="#" onclick="chrono.reset()"><i class="fas fa-undo-alt"></i></a>
+            <a id="chrono-done" href="#" onclick="chrono.doneDisplay()"><i class="fas fa-check-circle"></i></a>
+          </span>
+        </div>
+    </div>
+</header>
+<div id='tooltip'></div>
+
+<!-- User ID modals -->
+<div class="container" id="id-modals">
+    <div id="user-id-modal" style="display: none;">
+            <div class="input-group input-group-lg">
+                    <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-lg">ID</span>
+                    </div>
+            <input id="user-id-input" type="number" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+            <button type="button" id="user-id-form" class="btn btn-secondary">Submit</button>
+            </div>
+    </div>
+    <div id="error-id-modal" style="display:none;" class="alert alert-danger" role="alert">
+            <span id="error-id-log"></span>
+    </div>
+    <div id="success-modal" style="display:none;" class="alert alert-success" role="alert">
+            <span id="success-log"></span>
+    </div>
+</div>
+
+<!-- Final style mixing image choice modal -->
+<div id="final-style-mix-image-modal">
+    <div class="modal-content">
+        <div class="modal-top">
+            <!-- template used to generate the modal content -->
+            <script type='text/html' id='final-style-mix-image-template'>
+                <div class='modal-top-content'>
+                    <h2>Your style mixed images</h2>
+                    <p>You have selected <b id='n-images-style-mixed-choice'><%- images.length %></b> image<% if(images.length > 1) { %>s<% } %></p>
+                    <p>Please select the one that corresponds the most to your target</p>
+                    <div id='final-style-mix-image-grid'>
+                        <% _.forEach(images, function(image, idx) { %>
+                        <div class='style-mixed-image'> <!-- image.name is image path from results folder -->
+                            <div data-index='<%- idx %>' data-image='<%- image.name %>' class='background-image'
+                                    style='background-image: url("/static/results/<%- image.path %><%- image.name %>");'></div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </script>
+            <!-- div where the generated modal content will be added -->
+            <div id="final-style-mix-image-target"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Final image choice modal -->
+<div id="final-image-modal">
+    <div class="modal-content">
+        <div class="modal-top">
+            <!-- template used to generate the modal content -->
+            <script type='text/html' id='final-image-template'>
+                <div class='modal-top-content'>
+                    <h2>Your best matches</h2>
+                    <p>Please select the image that corresponds the most to your target</p>
+                    <div id='final-image-grid'>
+                        <% _.forEach(final_choices, function(image, idx) { %>
+                        <div class='final-image'> <!-- image.name is image path from results folder -->
+                            <div data-index='<%- idx %>' data-image='<%- image.name %>' class='background-image'
+                                    style='background-image: url("<%- image.name %>");'></div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </script>
+            <!-- div where the generated modal content will be added -->
+            <div id="final-image-target"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Selections from experiment 1 Navigation -->
+<nav>
+    <div id='nav-inner' class='no-highlight'>
+        <h2>Past selections</h2>
+        <!-- div where the past selections will be added -->
+        <div id='past-selections'></div>
+        <!-- template used to add past selections to the div above -->
+        <script type='text/html' id='past-selections-template'>
+            <% _.forEach(past_selections, function(past_selection) { %>
+            <div class='past-selection'> 
+                <img draggable="true" ondragstart="drag(event)" alt='<%= past_selection.img %>' src='<%= past_selection.img %>'>
+            </div>
+            <% }); %>
+        </script>
+    </div>
+</nav>
+
+<!-- Style mixed selections Navigation -->
+<aside>
+    <div id='aside-inner' class='no-highlight'>
+        <h2>Style mixed selections</h2>
+        <!-- div where the selected images will be added -->
+        <div id='style-mixed-selections'></div>
+        <!-- template used to add selected images to the div above -->
+        <script type='text/html' id='style-mixed-selections-template'>
+            <% _.forEach(selections, function(selection) { %>
+            <div class='style-mixed-selection'>
+                <img draggable="true" ondragstart="drag(event)" alt='<%= selection.label %>' src='static/results/<%= selection.path %><%= selection.name %>'>
+            </div>
+            <% }); %>
+        </script>
+    </div>
+</aside>
+
+<!-- Content -->
+<div class="container" style="max-width: 70%; padding: 15px;">
+	<div class="row">
+		<div class="col">
+			<p>Drag your selections in the source placeholders</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<div id="target-container" class="avatar-container">
+                		<img id="target-image" src='/static/empty.png' width="100%" class="rounded mx-auto d-block img-thumbnail"/>
+                		<p class="text-center">Upload your target image<label for="file" style="cursor: pointer; margin-left: 5px;"><img src="/static/upload-icon.png" width="10"/></label></p>
+                		<input type="file"  accept="image/jpeg, image/png" name="image" id="file" onchange="loadImage(event)" style="display: none;">
+            		</div>
+		</div>
+		<div class="col">
+			<div id="source-1" class="source-container" ondrop="dropImage(event)" ondragover="allowDrop(event)">
+				<img id="source-1-img" src='/static/empty.png' width="100%" class="rounded mx-auto d-block img-thumbnail"/>
+				<p class="text-center">Source 1</p>
+			</div>
+		</div>
+		<div class="col">
+			<div id="source-2" class="source-container" ondrop="dropImage(event)" ondragover="allowDrop(event)">
+                                <img id="source-2-img" src='/static/empty.png' width="100%" class="rounded mx-auto d-block img-thumbnail"/>
+				<p class="text-center">Source 2</p>
+                        </div>
+		</div>
+		<div class="col align-self-center text-center">
+			<button type="button" id="mix-btn" class="btn btn-warning btn-lg">Mix</button>
+		</div>
+	</div>
+</div>
+<!-- Modal for style mixing outputs -->
+<div class="container" id="style-mix-outputs-container">
+	<span>Select the output that is closer to your target</span>
+	<!-- div where the outputs will be displayed -->
+	<div id="style-mix-outputs-target"></div>
+	<!-- template used to add past selections to the div above -->
+        <script type='text/html' id='style-mix-outputs-template'>
+	<!-- // TO DO: create css style for .output + onclick markImage -->
+            <% _.forEach(outputs, function(output) { %>
+            <div class='output'> 
+                <img alt='<%= output.img %>' class="rounded mx-auto d-block img-thumbnail" src='<%= output.img %>'>
+            </div>
+            <% }); %>
+        </script>
+</div>
+
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+-->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js" integrity="sha256-ur/YlHMU96MxHEsy3fHGszZHas7NzH4RQlD4tDVvFhw=" crossorigin="anonymous"></script>
+<script type='text/javascript' src='./static/style_mix.js'></script>
+
+</body>
