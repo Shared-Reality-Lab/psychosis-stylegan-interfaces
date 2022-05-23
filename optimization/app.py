@@ -174,7 +174,7 @@ def terminate():
 			for key in session.keys():
 				csvfile.write("%s,%s\n"%(key,session[key]))
 			# format data for style mixing
-			optim_to_stylem(session['id'],session['pass'],'./static/results/','./static/originals/','../style_mixing_app/static/experiment_1/')
+			optim_to_stylem(session['id'],session['pass'],'./static/results/','./static/originals/','../style_mixing/static/experiment_1/')
 			optim_to_mos(session['id'],session['pass'],data['image'],'../manipulation_of_semantics/static/experiment_1/')
 		return jsonify({'status': 'success', 'success_log':'successfully saved your data'})
 	except Exception as e:
