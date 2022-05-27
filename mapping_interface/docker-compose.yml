@@ -1,0 +1,18 @@
+version: '2'
+services:
+  #######################################
+  # PHP application Docker container
+  #######################################
+  app:
+    image: webdevops/php-nginx
+    ports:
+      - "8080:80"
+      - "8443:443"
+      - "10022:22"
+    volumes:
+      - /home/hyejin/MapExploration/avatar-synthesis/:/app/
+    # cap and privileged needed for slowlog
+    cap_add:
+      - SYS_PTRACE
+    privileged: true
+
