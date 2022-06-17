@@ -1,0 +1,54 @@
+version: "3.9"
+services: 
+  opt: 
+    build: ./optimization
+    command: >
+      bash -c "cd optimization
+      && python -m flask run --host=0.0.0.0"
+
+    image: optimization
+    ports: 
+      - "54:5000/tcp"
+    volumes: 
+      - ./:/var/avatar
+      - ../data/originals:/var/avatar/optimization/static/originals
+
+  semantics: 
+    build: ./manipulation_of_semantics
+    command: >
+      bash -c "cd manipulation_of_semantics
+      && python -m flask run --host=0.0.0.0"
+
+    deploy: 
+      resources: 
+        reservations: 
+          devices: 
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    image: manipulation_of_semantics
+    ports: 
+      - "55:5000/tcp"
+    volumes: 
+      - ./:/var/avatar
+      - ../data/originals:/var/avatar/optimization/static/originals
+
+  style-mixing: 
+    build: ./style_mixing
+    command: >
+      bash -c "cd style_mixing
+      && python -m flask run --host=0.0.0.0"
+
+    deploy: 
+      resources: 
+        reservations: 
+          devices: 
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    image: style_mixing
+    ports: 
+      - "52:5000/tcp"
+    volumes: 
+      - ./:/var/avatar
+      - ../data/originals:/var/avatar/optimization/static/originals
