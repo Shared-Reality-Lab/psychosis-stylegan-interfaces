@@ -10,7 +10,9 @@ services:
       - "8443:443"
       - "10022:22"
     volumes:
-      - /home/hyejin/MapExploration/avatar-synthesis/:/app/
+      - /home/yujing/LatestInterface/psychosis-stylegan-interfaces/mapping_interface/avatar-synthesis/:/app/
+      - /home/yujing/LatestInterface/data/:/app/data/
+
     # cap and privileged needed for slowlog
     cap_add:
       - SYS_PTRACE
